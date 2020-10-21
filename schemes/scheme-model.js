@@ -1,4 +1,4 @@
-const db = require("../knexfile");
+const db = require("../data/config");
 
 function find() {
   return db("schemes");
@@ -8,11 +8,29 @@ function findById(id) {
   return db("schemes").where("id", id);
 }
 
-function add(user) {}
+function add(scheme) {
+  db("schemes")
+    .insert(scheme)
+    .then((ids) => {
+      return findById(ids[0]);
+    });
+}
 
-function update(changes, id) {}
+async function update(changes, id) {
+  await db("schemes").where("id", id).update(changes);
 
-function remove(id) {}
+  return findById(id);
+}
+
+async function remove(id) {
+  const scheme = await findById(id);
+  await db("schemes").where({ id }).del();
+  return scheme;
+}
+
+function findSteps(id) {
+  return db("steps").where({ scheme_id: id });
+}
 
 module.exports = {
   find,
@@ -20,4 +38,5 @@ module.exports = {
   add,
   update,
   remove,
+  findSteps,
 };
